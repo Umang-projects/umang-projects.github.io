@@ -4,8 +4,6 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-# About Me
-
 > ### My journey started with a simple question: why are the most elegant deep learning models so computationally inefficient?
 
 To answer this, I first went deep into the fundamentals of **Deep Learning** and the **Linear Algebra** that underpins modern architectures like the Transformer. But understanding the 'why' wasn't enough; I needed to understand the 'how'. This drove me down the stack to the metal of **GPU architecture**.
