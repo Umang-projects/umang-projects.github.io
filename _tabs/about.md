@@ -20,7 +20,7 @@ My focus lies at the intersection of deep learning theory, systems programming, 
 
 *   ⚡ **High-Performance Kernel Development:** Writing custom C++ and CUDA kernels from scratch to accelerate core computational bottlenecks (e.g., attention, convolution, sparse matrix operations).
 
-*   ⚙️ **AI Systems Research:** Bridging the gap between algorithmic theory and hardware-efficient implementation to build powerful and accessible AI.
+*   ⚙️ **AI Systems Research/Engineering:** Bridging the gap between algorithmic theory and hardware-efficient implementation to build powerful and accessible AI.
 
 ---
 

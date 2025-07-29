@@ -1,0 +1,46 @@
+/* 1) Base subtitle reset (covers both .post-subtitle inside a wrapper, 
+      and a lone <h4 class="post-subtitle">) */
+.post-subtitle,
+.post-subtitle-wrapper .post-subtitle {
+  font-size: 0.95rem !important;
+  line-height: 1.4;
+  margin: 0 !important;       /* remove all margin around the subtitle */
+  padding: 0 !important;      /* remove any padding */
+}
+
+
+/* 2) Kill your extra wrapper margin if you still have it */
+.card-text-size {
+  margin-top: 0 !important;
+}
+/* 3) Remove margin on the very next element after the subtitle,
+      whether it’s .card-text-size, .card-text, or even a <p> */
+.post-subtitle + *,
+.post-subtitle-wrapper + * {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* 4) If your content block starts with a paragraph that still gets 
+      browser default spacing, zero that out too: */
+.card-text-size .card-text p:first-child,
+.post-subtitle + p {
+  margin-top: 0 !important;
+}
+
+/* 5) Your title styling can stay as is */
+.card-title {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+/* 6) Mobile tweaks */
+@media (max-width: 768px) {
+  .post-subtitle,
+  .post-subtitle-wrapper .post-subtitle {
+    font-size: 0.85rem !important;
+  }
+  .card-title {
+    font-size: 1.2rem;
+  }
+}
