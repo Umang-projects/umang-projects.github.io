@@ -1,8 +1,8 @@
 ---
-title:"From Matrix Multiplication to Warp Optimizations — My Journey and Insights"
-subtitle: "Work-in-progress: Controlling warp divergence, efficient reductions, and memory-efficient attention kernels"
-categories: [CUDA, Maths]
-tags: [cuda,gpu,optimization,performance,warp-divergence,parallel-computing,profiling,shared-memory,matrix-multiplication,learning-journey]
+title: "From Matrix Multiplication to Warp Optimizations — My Journey and Insights."
+subtitle: "Work-in-progress: Controlling warp divergence, efficient reductions, and memory-efficient attention kernels."
+categories: [CUDA, Parallel computing, Maths]
+tags: [Cuda,gpu,optimization,performance,warp-divergence,parallel-computing,profiling,shared-memory,matrix-multiplication,learning-journey]
 ---
 
 **Hey everyone —** welcome to my CUDA notes-turned-blog! I started confused about how GPU threads decide work in warps and ended up experimenting with matrix multiplication, reductions, branch divergence, and warp tricks. This is a single, friendly post that combines those learnings into a practical guide with intuition, small code examples, and follow-up ideas. Treat it as my learning journal made readable — candid, practical, and useful.
@@ -151,6 +151,55 @@ for (int offset = 16; offset > 0; offset >>= 1) {
 // lane 0 now has the sum for the warp
 ```
 
+Overall:
+```cpp
+__global__ void sumEvenOdd_Optimized(float* data, float* evenSum, float* oddSum, int N) {
+    __shared__ float sharedEven[32];  // For group 0's reduction (32 threads)
+    __shared__ float sharedOdd[32];   // For group 1's reduction
+
+    int tid = threadIdx.x;            // Local thread ID (0-63)
+    int group = tid / 32;             // 0 for tids 0-31 (warp 0, evens), 1 for 32-63 (warp 1, odds)
+    int lane = tid % 32;              // 0-31 within the group/warp
+
+    // Improved mapping: Fully separate evens/odds across the array
+    // Group 0: base = 0,2,4,... (evens); Group 1: 1,3,5,... (odds)
+    int base = lane * 2 + group;      // Step by 2, offset by group (0 or 1)
+
+    float val = 0.0f;
+    if (base < N) val = data[base];   // Load if in bounds; all in group load evens or odds uniformly
+
+    // Now reduce (sum) within each group
+    if (group == 0) {  // Group 0: Sum evens (uniform within warp 0)
+        // Store to shared for reduction (optional, but helps visibility)
+        sharedEven[lane] = val;
+        __syncthreads();  // Sync within block (safe, though intra-warp not strictly needed)
+
+        // Warp-level shuffle reduction (branch-free)
+        for (int offset = 16; offset > 0; offset >>= 1) {
+            val += __shfl_down_sync(0xFFFFFFFF, val, offset);
+        }
+        if (lane == 0) sharedEven[0] = val;  // Lane 0 writes the even sum
+    } else {  // Group 1: Sum odds (uniform within warp 1)
+        sharedOdd[lane] = val;
+        __syncthreads();
+
+        for (int offset = 16; offset > 0; offset >>= 1) {
+            val += __shfl_down_sync(0xFFFFFFFF, val, offset);
+        }
+        if (lane == 0) sharedOdd[0] = val;  // Lane 0 writes the odd sum
+    }
+
+    __syncthreads();  // Full block sync to ensure both sums are ready
+
+    // Thread 0 outputs the final results to global memory
+    if (tid == 0) {
+        *evenSum = sharedEven[0];
+        *oddSum = sharedOdd[0];
+    }
+}
+
+```
+
 If you need the warp-sum at a particular lane, broadcast it with a `__shfl_sync` call. For block-level sums you can combine warp-shuffle results with a shared-memory final pass.
 
 ---
@@ -170,20 +219,6 @@ Fusing steps (matmul → scale → softmax → multiply-V) with stable-blocking 
 - Use shuffle reductions for warp-level sums, combine with shared memory for block-level.
 - Profile before and after: look for reduced warp stalls and lower runtime.
 - If your algorithm materializes large temporaries, consider fusion as a next step.
-
----
-
-## Visuals & Canva suggestions (how to turn this into a nice blog graphic)
-
-If you want to create a Canva post/carousel, make these 3 slides:
-
-1. **Problem + Hook** — short story + profiler pie (hotspot).
-2. **Two Techniques** — left: arithmetic trick (with 1-line example). Right: warp grouping (with a diagram of warps).
-3. **Results + Next Steps** — show before/after numbers or a checklist.
-
-Use simple diagrams: warps as rows of 32 boxes, highlight active lanes, and show masks (0 vs 1). Add a small code snippet box for the shuffle reduction.
-
----
 
 ## Final thoughts (honest & humble)
 
