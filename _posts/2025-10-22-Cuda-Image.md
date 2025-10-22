@@ -1,4 +1,27 @@
-# From Confusion to Colors: My Journey Learning Parallel Image Magic with CUDA Threads
+---
+title: "From Confusion to Colors: My Journey Learning Parallel Image Magic with CUDA Threads"
+date: 2025-10-22 15:21:00 +05:30
+layout: post
+author: Umang Singh
+excerpt: "A beginner's journey from confusion to creating fractal art using CUDA threads — intuitive steps, exercises, and code snippets."
+categories:
+  - CUDA
+  - Parallel Computing
+  - Maths
+  - Image
+tags:
+  - cuda
+  - gpu
+  - optimization
+  - performance
+  - warp-divergence
+  - parallel-computing
+  - profiling
+  - shared-memory
+  - matrix-multiplication
+  - learning-journey
+---
+
 
 Hey folks! I’m just a curious learner wandering into the GPU universe — and wow, it’s a ride. A few weeks ago, I cracked open Chapter 5 of *Programming Massively Parallel Processors* (yep, the Kirk & Hwu classic), and my brain nearly melted.  
 Threads? Blocks? Thousands of tiny workers painting pixels at once? Total chaos in my head.
