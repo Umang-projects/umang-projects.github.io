@@ -1,5 +1,6 @@
 ---
 title: "From Confusion to Colors: My Journey Learning Parallel Image Magic with CUDA Threads"
+subtitle: "A beginner's sketchbook for turning CUDA confusion into fractal art"
 date: 2025-10-22 15:21:00 +05:30
 layout: post
 author: Umang Singh
